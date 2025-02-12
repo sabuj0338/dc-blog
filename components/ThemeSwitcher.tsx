@@ -3,23 +3,6 @@ import { useTheme } from "@/context/ThemeContext";
 
 export default function ThemeSwitcher() {
   const {theme, toggleTheme} = useTheme();
-  // const [theme, setTheme] = useState<boolean | string>(false);
-
-  // useEffect(() => {
-  //   if (window.location !== undefined) {
-  //     const theme =
-  //       document.documentElement.attributes.getNamedItem("data-theme")?.value;
-  //     if (theme) {
-  //       setTheme(theme);
-  //     }
-  //   }
-  // }, []);
-
-  // const changeTheme = () => {
-  //   const newTheme = theme === "dark" ? "light" : "dark";
-  //   document.dispatchEvent(new CustomEvent("set-theme", { detail: newTheme }));
-  //   setTheme(newTheme);
-  // };
 
   return (
     <button

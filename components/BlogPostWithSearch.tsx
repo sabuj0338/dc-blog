@@ -10,8 +10,14 @@ export default function BlogPostWithSearch() {
   const [results, setResults] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false); // Loading state
 
+  // Debounce the query
   const debouncedQuery = useDebounce(query, 500); // 500ms debounce delay
 
+  /**
+   * Fetches the blog post results for the given search term.
+   * @param {string} [searchTerm=""] - The search term to filter the posts by.
+   * @returns {Promise<void>} - A promise that resolves when the data is fetched.
+   */
   const fetchResults = async (searchTerm: string = "") => {
     setLoading(true); // Start loading
     try {
@@ -29,6 +35,7 @@ export default function BlogPostWithSearch() {
     fetchResults();
   }, []);
 
+  // Fetch posts when the debounced query changes
   useEffect(() => {
     fetchResults(debouncedQuery);
   }, [debouncedQuery]);

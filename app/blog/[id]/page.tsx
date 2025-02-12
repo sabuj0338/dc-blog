@@ -9,6 +9,7 @@ export default async function Page({ params }: Props) {
   const id = (await params).id;
   const post = await getPostById(id);
 
+  // Check if the post exists
   if (!post?.id) {
     return (
       <article>
