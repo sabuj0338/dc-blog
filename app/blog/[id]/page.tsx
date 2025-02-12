@@ -1,10 +1,6 @@
 async function getPost(id: number): Promise<Post | undefined> {
-  try {
-    const res = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`);
-    return res.json();
-  } catch (error) {
-    return undefined;
-  }
+  const res = await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`);
+  return res.json();
 }
 
 type Props = {
