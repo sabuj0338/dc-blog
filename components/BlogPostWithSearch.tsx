@@ -1,18 +1,37 @@
 "use client";
 
+import { useDebounce } from "@/hooks/useDebounce";
+import { getPosts } from "@/services/api.service";
 import Link from "next/link";
-import { useState } from "react";
-// import BlogPostViews from './BlogPostViews';
+import { useEffect, useState } from "react";
 
-type Props = {
-  sortedPosts: Post[];
-};
+export default function BlogPostWithSearch() {
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(false); // Loading state
 
-const BlogPostWithSearch = ({ sortedPosts }: Props) => {
-  const [searchValue, setSearchValue] = useState("");
-  const filteredBlogPosts = sortedPosts.filter((post: Post) =>
-    post.title.toLowerCase().includes(searchValue.toLowerCase())
-  );
+  const debouncedQuery = useDebounce(query, 500); // 500ms debounce delay
+
+  const fetchResults = async (searchTerm: string = "") => {
+    setLoading(true); // Start loading
+    try {
+      const data = await getPosts(searchTerm);
+      setResults(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
+
+  // Fetch all posts on initial load
+  useEffect(() => {
+    fetchResults();
+  }, []);
+
+  useEffect(() => {
+    fetchResults(debouncedQuery);
+  }, [debouncedQuery]);
 
   return (
     <>
@@ -20,7 +39,8 @@ const BlogPostWithSearch = ({ sortedPosts }: Props) => {
         <input
           aria-label="Search articles"
           type="text"
-          onChange={(e) => setSearchValue(e.target.value)}
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
           placeholder="Search articles"
           className="block w-full px-4 py-2 text-gray-900 bg-white border border-gray-200 rounded-md dark:border-gray-900 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-800 dark:text-gray-100"
         />
@@ -42,11 +62,16 @@ const BlogPostWithSearch = ({ sortedPosts }: Props) => {
       <h3 className="mt-8 mb-4 text-2xl font-bold tracking-tight text-black md:text-4xl dark:text-white">
         All Posts
       </h3>
-      {!filteredBlogPosts.length && (
+      {loading && (
+        <p className="mb-4 text-gray-600 dark:text-gray-400">
+          Loading posts...
+        </p>
+      )}
+      {!results.length && (
         <p className="mb-4 text-gray-600 dark:text-gray-400">No posts found.</p>
       )}
-      {filteredBlogPosts.length > 0 &&
-        filteredBlogPosts.map((post) => (
+      {results.length > 0 &&
+        results.map((post) => (
           <Link href={`/blog/${post.id}`} className="w-full" key={post.id}>
             <div className="w-full mb-8 group">
               <div className="flex flex-col justify-between md:flex-row">
@@ -55,7 +80,10 @@ const BlogPostWithSearch = ({ sortedPosts }: Props) => {
                 </h4>
               </div>
               <p className="text-gray-600 dark:text-gray-400 text-justify">
-                {post.body} <span className="text-blue-600 hover:text-blue-700">see more..</span>
+                {post.body}{" "}
+                <span className="text-blue-600 hover:text-blue-700">
+                  see more..
+                </span>
               </p>
             </div>
             <hr className="my-8 border-gray-200 dark:border-gray-800" />
@@ -63,6 +91,4 @@ const BlogPostWithSearch = ({ sortedPosts }: Props) => {
         ))}
     </>
   );
-};
-
-export default BlogPostWithSearch;
+}
